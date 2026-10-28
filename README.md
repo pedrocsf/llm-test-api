@@ -12,10 +12,10 @@
 [![Qt](https://img.shields.io/badge/Qt-PySide6-41cd52?style=flat-square&logo=qt&logoColor=white)](https://doc.qt.io/qtforpython-6/)
 [![ONNX](https://img.shields.io/badge/ONNX-fastembed-005ced?style=flat-square&logo=onnx&logoColor=white)](https://github.com/qdrant/fastembed)
 [![PyInstaller](https://img.shields.io/badge/packaged_with-PyInstaller-2c3e50?style=flat-square)](https://pyinstaller.org/)
-[![Platforms](https://img.shields.io/badge/platform-Linux_%7C_Windows-0f172a?style=flat-square)](#building-binaries)
+[![Platforms](https://img.shields.io/badge/platform-Linux_%7C_Windows-0f172a?style=flat-square)](#quick-start)
 [![MIT license](https://img.shields.io/badge/license-MIT-f4c430?style=flat-square)](LICENSE)
 
-[Features](#features) · [Quick start](#quick-start) · [Usage](#usage) · [Metrics](#metrics) · [Architecture](#architecture) · [Development](#development) · [License](#license)
+[Features](#features) · [Quick start](#quick-start) · [Usage](#usage) · [Metrics](#metrics) · [Architecture](#architecture) · [License](#license)
 
 </div>
 
@@ -140,23 +140,6 @@ tests/
 - **Scoring** goes through the `ScoringMethod` interface (`identifier`, `display_name`, `score_kind`, `score()`, `prepare()` and an optional `corpus_score()`), so adding a metric means adding one class and registering it.
 - **Controllers** are thin: they run use cases on background threads and hand results to the views. `EvaluationController.shutdown()` cancels and joins the worker on exit, so closing the window mid-run is safe.
 - **Views** only display data and forward user actions. Colors live in `presentation/views/branding.py` and the Qt stylesheet in `presentation/views/theme.py`.
-
-## Development
-
-```sh
-python3 -m venv .venv
-.venv/bin/pip install -r requirements-dev.txt
-.venv/bin/python scripts/prefetch_model.py
-.venv/bin/python -m pytest
-```
-
-### Building binaries
-
-- **Linux:** `sh scripts/build_appimage.sh` (needs `appimagetool` on `PATH` or in `APPIMAGETOOL`). Produces `dist/LlmEvaluator-x86_64.AppImage`.
-- **Windows:** `python -m PyInstaller --noconfirm llm_evaluator.spec`, then zip `dist/LlmEvaluator`.
-- Both are built by the [`build`](.github/workflows/build.yml) workflow when a `v*` tag is pushed or when the workflow is triggered manually.
-
-The PyInstaller build uses onedir mode and weighs around 520 MB because the embedding model is included.
 
 ## Contributing
 
