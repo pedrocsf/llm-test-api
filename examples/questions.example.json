@@ -1,0 +1,17 @@
+[
+  {
+    "id": "1",
+    "question": "Qual é a capital do Brasil?",
+    "expected_answer": "A capital do Brasil é Brasília."
+  },
+  {
+    "id": "2",
+    "question": "Quanto é 7 vezes 8?",
+    "expected_answer": "7 vezes 8 é igual a 56."
+  },
+  {
+    "id": "3",
+    "question": "Quem escreveu Dom Casmurro?",
+    "expected_answer": "Dom Casmurro foi escrito por Machado de Assis."
+  }
+]

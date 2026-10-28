@@ -1,0 +1,7 @@
+[Desktop Entry]
+Type=Application
+Name=Project Harbor - Benchmark
+Exec=LlmEvaluator
+Icon=llm-evaluator
+Categories=Development;Utility;
+Terminal=false

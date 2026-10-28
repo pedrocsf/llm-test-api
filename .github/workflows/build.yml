@@ -1,0 +1,67 @@
+name: build
+
+on:
+  push:
+    tags:
+      - "v*"
+  workflow_dispatch:
+
+jobs:
+  linux:
+    runs-on: ubuntu-22.04
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.14"
+      - run: pip install -r requirements-dev.txt
+      - run: python -m pytest -q
+      - name: Instalar appimagetool
+        run: |
+          curl -fsSL -o appimagetool https://github.com/AppImage/appimagetool/releases/download/continuous/appimagetool-x86_64.AppImage
+          chmod +x appimagetool
+          printf '#!/bin/sh\nexec "%s/appimagetool" --appimage-extract-and-run "$@"\n' "$PWD" > appimagetool-run
+          chmod +x appimagetool-run
+      - name: Gerar AppImage
+        run: sh scripts/build_appimage.sh
+        env:
+          PYTHON: python
+          APPIMAGETOOL: ${{ github.workspace }}/appimagetool-run
+      - uses: actions/upload-artifact@v4
+        with:
+          name: LlmEvaluator-linux
+          path: dist/LlmEvaluator-x86_64.AppImage
+
+  windows:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.14"
+      - run: pip install -r requirements-dev.txt
+      - run: python -m pytest -q
+      - run: python scripts/prefetch_model.py
+      - run: python -m PyInstaller --noconfirm llm_evaluator.spec
+      - name: Compactar
+        shell: pwsh
+        run: Compress-Archive -Path dist/LlmEvaluator -DestinationPath dist/LlmEvaluator-windows.zip
+      - uses: actions/upload-artifact@v4
+        with:
+          name: LlmEvaluator-windows
+          path: dist/LlmEvaluator-windows.zip
+
+  release:
+    if: startsWith(github.ref, 'refs/tags/v')
+    needs: [linux, windows]
+    runs-on: ubuntu-22.04
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          path: release-files
+          merge-multiple: true
+      - uses: softprops/action-gh-release@v2
+        with:
+          files: release-files/*
