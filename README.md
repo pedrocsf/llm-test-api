@@ -1,8 +1,8 @@
 <div align="center">
 
-<img src="packaging/linux/llm-evaluator.png" alt="Project Harbor logo" width="128" height="128" />
+<img src="packaging/linux/llm-evaluator.png" alt="Project Harbor Benchmark logo" width="128" height="128" />
 
-# Project Harbor
+# Project Harbor Benchmark
 
 ### A desktop benchmark for local LLMs, scored against a fixed question set.
 
@@ -22,12 +22,12 @@
 <br />
 
 <div align="center">
-<img src="docs/assets/overview.png" alt="Metric overview chart exported by Project Harbor" width="900" />
+<img src="docs/assets/overview.png" alt="Metric overview chart exported by Project Harbor Benchmark" width="900" />
 </div>
 
 <br />
 
-Project Harbor lets a team evaluate different LLM approaches on the same dataset in the same way. For each question, the app calls your model through an OpenAI-compatible endpoint (for example `http://127.0.0.1:1234/v1/chat/completions`), compares the answer with the expected one, and scores it from 0 to 1. The embedding model ships inside the app, so there is no internet connection and no external API key involved.
+Project Harbor Benchmark lets a team evaluate different LLM approaches on the same dataset in the same way. For each question, the app calls your model through an OpenAI-compatible endpoint (for example `http://127.0.0.1:1234/v1/chat/completions`), compares the answer with the expected one, and scores it from 0 to 1. The embedding model ships inside the app, so there is no internet connection and no external API key involved.
 
 ## Features
 
@@ -117,7 +117,7 @@ Things to keep in mind when reading the scores:
 
 ## Architecture
 
-Project Harbor follows Clean Architecture with an MVC presentation layer. Dependencies point inward: `presentation → domain ← data`.
+Project Harbor Benchmark follows Clean Architecture with an MVC presentation layer. Dependencies point inward: `presentation → domain ← data`.
 
 ```
 domain/             entities, repository and gateway interfaces, use cases,

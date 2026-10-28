@@ -1,5 +1,5 @@
-APPLICATION_NAME = "Project Harbor"
-APPLICATION_SUBTITLE = "Benchmark · v1.0"
+APPLICATION_NAME = "Project Harbor Benchmark"
+APPLICATION_SUBTITLE = "v1.0"
 
 GRADIENT_START = "#0f172a"
 GRADIENT_END = "#1d4ed8"

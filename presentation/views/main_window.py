@@ -32,7 +32,7 @@ from presentation.views.overview_chart import render_overview_chart
 from presentation.views.theme import MAIN_WINDOW_STYLE
 from presentation.views.themed_combo_box import ThemedComboBox
 
-WINDOW_TITLE = "Project Harbor - Benchmark - v1.0"
+WINDOW_TITLE = "Project Harbor Benchmark - v1.0"
 DEMO_TITLE_SUFFIX = " (Demo)"
 WINDOW_WIDTH = 1100
 WINDOW_HEIGHT = 820
