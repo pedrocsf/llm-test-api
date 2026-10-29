@@ -2,7 +2,10 @@ import sys
 
 from PySide6.QtWidgets import QApplication
 
+from data.gateways.anthropic_gateway import AnthropicGateway
+from data.gateways.gemini_gateway import GeminiGateway
 from data.gateways.openai_compatible_gateway import OpenAiCompatibleGateway
+from data.gateways.provider_routing_gateway import ProviderRoutingGateway
 from data.repositories.file_result_repository import FileResultRepository
 from data.repositories.json_question_repository import JsonQuestionRepository
 from data.resource_locator import resolve_resource_path
@@ -39,12 +42,16 @@ def build_scoring_methods() -> list[ScoringMethod]:
     ]
 
 
+def build_language_model_gateway() -> ProviderRoutingGateway:
+    return ProviderRoutingGateway(OpenAiCompatibleGateway(), AnthropicGateway(), GeminiGateway())
+
+
 def build_controllers() -> tuple[StartupController, EvaluationController]:
     scoring_methods = build_scoring_methods()
     startup_controller = StartupController(PrepareScoringMethods(scoring_methods))
     use_cases = EvaluationUseCases(
         load_questions=LoadQuestions(JsonQuestionRepository()),
-        run_evaluation=RunEvaluation(OpenAiCompatibleGateway()),
+        run_evaluation=RunEvaluation(build_language_model_gateway()),
         rescore_result=RescoreResult(),
         build_overview=BuildMetricOverview(),
         export_result=ExportResult(FileResultRepository()),

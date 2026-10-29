@@ -6,7 +6,7 @@
 
 ### A desktop benchmark for local LLMs, scored against a fixed question set.
 
-**Load a dataset. Point it at your model. Get comparable scores, entirely offline.**
+**Load a dataset. Point it at your model. Get comparable scores.**
 
 [![Python](https://img.shields.io/badge/Python-3.14-3776ab?style=flat-square&logo=python&logoColor=white)](https://www.python.org/)
 [![Qt](https://img.shields.io/badge/Qt-PySide6-41cd52?style=flat-square&logo=qt&logoColor=white)](https://doc.qt.io/qtforpython-6/)
@@ -27,11 +27,11 @@
 
 <br />
 
-Project Harbor Benchmark lets a team evaluate different LLM approaches on the same dataset in the same way. For each question, the app calls your model through an OpenAI-compatible endpoint (for example `http://127.0.0.1:1234/v1/chat/completions`), compares the answer with the expected one, and scores it from 0 to 1. The embedding model ships inside the app, so there is no internet connection and no external API key involved.
+Project Harbor Benchmark lets a team evaluate different LLM approaches on the same dataset in the same way. For each question, the app calls your model through an OpenAI-compatible endpoint (for example `http://127.0.0.1:1234/v1/chat/completions`), or through the native Anthropic or Gemini API, compares the answer with the expected one, and scores it from 0 to 1. The embedding model ships inside the app, so scoring works offline; only calls to a cloud provider need a connection and an API key.
 
 ## Features
 
-- **Fully local.** The LLM runs on your machine, the embedding model is bundled, and the dataset is a plain JSON file you choose.
+- **Fully local scoring.** Point it at an LLM on your machine or a cloud API; the embedding model is bundled, and the dataset is a plain JSON file you choose.
 - **Seven metrics.** Embedding similarity, Exact match, Token F1, ROUGE-1, ROUGE-2, ROUGE-L and BLEU. Switching metric after a run re-scores the stored answers without calling the LLM again.
 - **Overview chart.** One PNG with every metric at once: mean, median and a per-question heat map.
 - **Run statistics.** Median, highest and lowest score, response times, empty answers and average answer length.
@@ -62,7 +62,7 @@ To look around without any setup beyond the install, start the demo:
 
 1. Open the app. A splash screen shows while the embedding model loads.
 2. Click **Load dataset…** and pick your JSON file. Everything else stays disabled until a valid dataset is loaded.
-3. Enter the LLM URL. **API key** and **Model** are optional, and the URL works without `http://`.
+3. Enter the LLM URL. **API key** and **Model** are optional for local servers, and the URL works without `http://`. The provider is picked from the URL (see [Supported providers](#supported-providers)).
 4. Choose a **Metric** (default: Embedding similarity).
 5. Click **Run** and follow the progress. The table and the metrics panel fill in when it finishes.
 6. Use **Export** to save the result as JSON or CSV, and **Export chart…** to save the overview PNG.
@@ -88,6 +88,18 @@ The dataset is a JSON list of questions. See [`examples/questions.example.json`]
 ### Demo mode
 
 `main_demo.py` opens the same window with 12 sample questions and a simulated run. It makes no network calls. Export and Export chart write real files, but the numbers are sample data and must not be mistaken for real results. The fixed data lives in [`demo/demo_data.py`](demo/demo_data.py).
+
+## Supported providers
+
+The provider is chosen from the **URL**; there is no extra field.
+
+| Provider | URL | API key | Model |
+|----------|-----|---------|-------|
+| OpenAI-compatible (OpenAI, LM Studio, Ollama, vLLM, OpenRouter, Groq…) | The full `…/chat/completions` URL | Optional (`Authorization: Bearer`) | Optional |
+| Anthropic | `https://api.anthropic.com` (the path `/v1/messages` is added when missing) | Required (`x-api-key`) | Required, for example `claude-sonnet-4-5` |
+| Google Gemini | `https://generativelanguage.googleapis.com` (the path `/v1beta/models/<model>:generateContent` is built from **Model**), or the full `…:generateContent` URL | Required (`x-goog-api-key`) | Required when the URL has no path |
+
+Any URL containing `/chat/completions` is treated as OpenAI-compatible, including the compatibility endpoints of Anthropic and Google. Anthropic answers are capped at 4096 output tokens.
 
 ## Metrics
 
@@ -122,8 +134,8 @@ Project Harbor Benchmark follows Clean Architecture with an MVC presentation lay
 ```
 domain/             entities, repository and gateway interfaces, use cases,
                     and the pure-Python scoring methods (domain/scoring)
-data/               JSON dataset reader, result exporter, OpenAI-compatible HTTP
-                    gateway, scoring methods with heavy dependencies
+data/               JSON dataset reader, result exporter, OpenAI-compatible, Anthropic and Gemini HTTP
+                    gateways, scoring methods with heavy dependencies
                     (embedding similarity, BLEU)
 presentation/
   controllers/      evaluation and startup controllers (background threads)

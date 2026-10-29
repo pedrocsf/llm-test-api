@@ -1,19 +1,11 @@
 import httpx
 
+from data.gateways.gateway_http import normalize_url, post_json
 from domain.entities.language_model_settings import LanguageModelSettings
 from domain.errors import LanguageModelError
 from domain.gateways.language_model_gateway import LanguageModelGateway
 
 REQUEST_TIMEOUT_SECONDS = 300.0
-ERROR_BODY_PREVIEW_LENGTH = 300
-DEFAULT_URL_SCHEME = "http://"
-
-
-def _normalize_url(endpoint_url: str) -> str:
-    cleaned_url = endpoint_url.strip()
-    if "://" in cleaned_url:
-        return cleaned_url
-    return DEFAULT_URL_SCHEME + cleaned_url
 
 
 def _build_headers(settings: LanguageModelSettings) -> dict:
@@ -34,23 +26,13 @@ class OpenAiCompatibleGateway(LanguageModelGateway):
         self._client = client or httpx.Client(timeout=REQUEST_TIMEOUT_SECONDS)
 
     def ask(self, settings: LanguageModelSettings, question_text: str) -> str:
-        response = self._post(settings, question_text)
+        response = post_json(
+            self._client,
+            normalize_url(settings.endpoint_url),
+            _build_payload(settings, question_text),
+            _build_headers(settings),
+        )
         return self._extract_answer(response)
-
-    def _post(self, settings: LanguageModelSettings, question_text: str) -> httpx.Response:
-        url = _normalize_url(settings.endpoint_url)
-        try:
-            response = self._client.post(
-                url,
-                json=_build_payload(settings, question_text),
-                headers=_build_headers(settings),
-            )
-        except httpx.HTTPError as error:
-            raise LanguageModelError(f"Failed to connect to {url}: {error}") from error
-        if response.is_error:
-            preview = response.text[:ERROR_BODY_PREVIEW_LENGTH]
-            raise LanguageModelError(f"The LLM responded with status {response.status_code}: {preview}")
-        return response
 
     def _extract_answer(self, response: httpx.Response) -> str:
         try:
